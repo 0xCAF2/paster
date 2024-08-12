@@ -13,7 +13,7 @@ class Paster extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final items = ref.watch(itemsProvider);
-    final pasteState = useState(false);
+    final pastingState = useState(false);
 
     return Scaffold(
       body: Padding(
@@ -23,9 +23,9 @@ class Paster extends HookConsumerWidget {
           children: [
             const Text('Text or a PNG image can be pasted here:'),
             ElevatedButton.icon(
-              onPressed: !pasteState.value
+              onPressed: !pastingState.value
                   ? () async {
-                      pasteState.value = true;
+                      pastingState.value = true;
                       if (await Clipboard.hasStrings()) {
                         final data =
                             await Clipboard.getData(Clipboard.kTextPlain);
@@ -41,10 +41,10 @@ class Paster extends HookConsumerWidget {
                         }
                       }
                       await Future.delayed(const Duration(seconds: 3));
-                      pasteState.value = false;
+                      pastingState.value = false;
                     }
                   : null,
-              icon: Icon(pasteState.value ? Icons.done : Icons.paste),
+              icon: Icon(pastingState.value ? Icons.done : Icons.paste),
               label: const Text('Paste from clipboard'),
             ),
             const SizedBox(height: 16),
@@ -79,20 +79,20 @@ class _ItemEntry extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final copyState = useState(false);
+    final copyingState = useState(false);
 
     return ListTile(
       leading: IconButton(
-        icon: Icon(copyState.value ? Icons.done : Icons.copy),
+        icon: Icon(copyingState.value ? Icons.done : Icons.copy),
         onPressed: () async {
-          copyState.value = true;
+          copyingState.value = true;
           if (item.isImage) {
             setImage(item.content);
           } else {
             await Clipboard.setData(ClipboardData(text: item.content));
           }
           await Future.delayed(const Duration(seconds: 3));
-          copyState.value = false;
+          copyingState.value = false;
         },
       ),
       title: item.isImage

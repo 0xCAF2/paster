@@ -47,6 +47,6 @@ external JSPromise _setImage(Blob data);
 
 Future<void> setImage(String data) async {
   final blob = Blob.fromBytes(base64Decode(data));
-  final dynamic promise = _setImage(blob);
+  final promise = _setImage(blob);
   await promise.toDart;
 }
