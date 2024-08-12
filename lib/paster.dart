@@ -21,54 +21,47 @@ class Paster extends HookConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Text or PNG images can be pasted here.'),
+            const Text('Text or a PNG image can be pasted here:'),
+            ElevatedButton.icon(
+              onPressed: !pasteState.value
+                  ? () async {
+                      pasteState.value = true;
+                      if (await Clipboard.hasStrings()) {
+                        final data =
+                            await Clipboard.getData(Clipboard.kTextPlain);
+                        if (data != null && data.text != null) {
+                          final item = Item(text: data.text);
+                          ref.read(itemsProvider.notifier).add(item);
+                        }
+                      } else {
+                        final data = await getImage();
+                        if (data != null) {
+                          final item = Item(image: data);
+                          ref.read(itemsProvider.notifier).add(item);
+                        }
+                      }
+                      await Future.delayed(const Duration(seconds: 3));
+                      pasteState.value = false;
+                    }
+                  : null,
+              icon: Icon(pasteState.value ? Icons.done : Icons.paste),
+              label: const Text('Paste from clipboard'),
+            ),
+            const SizedBox(height: 16),
             Expanded(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ElevatedButton.icon(
-                    onPressed: !pasteState.value
-                        ? () async {
-                            pasteState.value = true;
-                            if (await Clipboard.hasStrings()) {
-                              final data =
-                                  await Clipboard.getData(Clipboard.kTextPlain);
-                              if (data != null && data.text != null) {
-                                final item = Item(text: data.text);
-                                ref.read(itemsProvider.notifier).add(item);
-                              }
-                            } else {
-                              final data = await getImage();
-                              if (data != null) {
-                                final item = Item(image: data);
-                                ref.read(itemsProvider.notifier).add(item);
-                              }
-                            }
-                            await Future.delayed(const Duration(seconds: 3));
-                            pasteState.value = false;
-                          }
-                        : null,
-                    icon: Icon(pasteState.value ? Icons.done : Icons.paste),
-                    label: const Text('Paste from clipboard'),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: items.when(
-                      data: (data) => ListView(
-                        children: [
-                          for (var i = 0; i < data.length; ++i)
-                            _ItemEntry(item: data[i], index: i),
-                        ],
-                      ),
-                      error: (error, stackTrace) => Center(
-                        child: Text('$error'),
-                      ),
-                      loading: () => const Center(
-                        child: CircularProgressIndicator(),
-                      ),
-                    ),
-                  ),
-                ],
+              child: items.when(
+                data: (data) => ListView(
+                  children: [
+                    for (var i = 0; i < data.length; ++i)
+                      _ItemEntry(item: data[i], index: i),
+                  ],
+                ),
+                error: (error, stackTrace) => Center(
+                  child: Text('$error'),
+                ),
+                loading: () => const Center(
+                  child: CircularProgressIndicator(),
+                ),
               ),
             ),
           ],

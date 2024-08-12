@@ -1,5 +1,5 @@
+/** Get image from clipboard */
 async function getImage() {
-  // get image from clipboard
   const contents = await navigator.clipboard.read()
   for (const item of contents) {
     if (item.types.includes('image/png')) {
@@ -9,8 +9,8 @@ async function getImage() {
   }
 }
 
+/** Set image to clipboard */
 async function setImage(blob) {
-  // set image to clipboard
   await navigator.clipboard.write([
     new ClipboardItem({
       'image/png': blob
