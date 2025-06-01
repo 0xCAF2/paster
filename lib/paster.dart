@@ -98,11 +98,16 @@ class _ItemEntry extends HookConsumerWidget {
       title: item.isImage
           ? Image.memory(base64Decode(item.content))
           : Text(item.content),
-      trailing: IconButton(
-        icon: const Icon(Icons.highlight_remove),
-        onPressed: () {
-          ref.read(itemsProvider.notifier).remove(index);
-        },
+      trailing: PopupMenuButton(
+        itemBuilder: (context) => [
+          PopupMenuItem(
+            child: const Text('Delete'),
+            onTap: () {
+              ref.read(itemsProvider.notifier).remove(index);
+            },
+          ),
+        ],
+        child: const Icon(Icons.more_horiz),
       ),
     );
   }
