@@ -1,21 +1,17 @@
-@JS()
-library image;
-
 import 'dart:async';
 import 'dart:convert';
 
 import 'dart:js_interop';
-import 'dart:typed_data';
 
-import 'package:web/web.dart' as web;
+import 'package:web/web.dart';
 
 @JS('getImage')
-external JSPromise<web.Blob> _getImage();
+external JSPromise<Blob> _getImage();
 
 Future<String?> getImage() async {
   final promise = _getImage();
   final imageData = await promise.toDart;
-  final reader = web.FileReader();
+  final reader = FileReader();
   final result = Completer<String?>();
   void handler(JSObject _) {
     final data = reader.result as JSArrayBuffer;
@@ -28,25 +24,13 @@ Future<String?> getImage() async {
   return await result.future;
 }
 
-@JS('Blob')
-extension type Blob._(JSObject _) implements JSObject {
-  external factory Blob(JSArray<JSArrayBuffer> blobParts, JSObject? options);
-
-  factory Blob.fromBytes(List<int> bytes) {
-    final data = Uint8List.fromList(bytes).buffer.toJS;
-    final options = {'type': 'image/png'}.jsify() as JSObject;
-    return Blob([data].toJS, options);
-  }
-
-  external JSArrayBuffer? get blobParts;
-  external JSObject? get options;
-}
-
 @JS('setImage')
 external JSPromise _setImage(Blob data);
 
 Future<void> setImage(String data) async {
-  final blob = Blob.fromBytes(base64Decode(data));
+  final bytes = base64Decode(data);
+  final blob = Blob(
+      [bytes].jsify() as JSArray<BlobPart>, BlobPropertyBag(type: 'image/png'));
   final promise = _setImage(blob);
   await promise.toDart;
 }
